@@ -1,0 +1,2 @@
+# hello-ollama
+Exploring Ollama 
