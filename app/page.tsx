@@ -1,103 +1,108 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import React, { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm"; // For GitHub-flavored Markdown (optional)
+
+const Home: React.FC = () => {
+  const [youtubeLink, setYoutubeLink] = useState<string>("https://www.youtube.com/watch?v=c5LqYrs3ads");
+  const [prompt, setPrompt] = useState<string>("Get the recipe and ingredients from the video");
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleGenerateWithAI = async (): Promise<void> => {
+    if (!youtubeLink.trim() || !prompt.trim()) {
+      setErrorMessage("Both fields are required.");
+      return;
+    }
+
+    setErrorMessage(null); // Clear any previous error messages
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://localhost:3000/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ youtubeLink, prompt }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.error || "Something went wrong.");
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      setAiResponse(data.response);
+    } catch (error) {
+      console.error("Error:", error);
+      setErrorMessage("Failed to generate AI response.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="min-h-screen bg-gray-50 text-gray-800 p-4 md:p-8">
+      <section className="max-w-3xl mx-auto space-y-6">
+        <header>
+          <h1 className="text-2xl md:text-4xl font-bold text-center">Recipes with AI</h1>
+        </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="space-y-4">
+          <label htmlFor="youtube-link" className="block text-lg font-bold">
+            YouTube Link
+          </label>
+          <input
+            id="youtube-link"
+            type="url"
+            placeholder="Enter YouTube link"
+            value={youtubeLink}
+            onChange={(e) => setYoutubeLink(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        <div className="space-y-4">
+          <label htmlFor="prompt" className="block text-lg font-bold">
+            Prompt
+          </label>
+          <textarea
+            id="prompt"
+            placeholder="Enter your prompt here"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows={4}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <button
+            onClick={handleGenerateWithAI}
+            className="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            disabled={loading}
+          >
+            {loading ? "Generating..." : "Generate with AI"}
+          </button>
+        </div>
+
+        {errorMessage && (
+          <div className="text-red-600 text-sm font-medium">
+            {errorMessage}
+          </div>
+        )}
+
+        {aiResponse && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">AI Response</h2>
+            <div className="p-4 bg-gray-100 border border-gray-300 rounded-md">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiResponse || ""}</ReactMarkdown>
+            </div>
+          </div>
+        )}
+      </section>
+    </main>
   );
-}
+};
+
+export default Home;

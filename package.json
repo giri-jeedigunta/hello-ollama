@@ -2,26 +2,46 @@
   "name": "hello-ollama",
   "version": "0.1.0",
   "private": true,
+  "author": "Giri Jeedigunta <giri.jeedigunta@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giri-jeedigunta/hello-ollama.git"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
+    "@langchain/community": "^0.3.39",
+    "@langchain/ollama": "^0.2.0",
+    "@langchain/openai": "^0.5.4",
+    "@qdrant/js-client-rest": "^1.13.0",
+    "chromadb": "^2.2.0",
+    "dotenv": "^16.4.7",
+    "faiss-node": "^0.5.1",
+    "langchain": "^0.3.20",
+    "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.2.4"
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "youtube-transcript": "^1.2.1",
+    "youtubei.js": "^13.3.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
