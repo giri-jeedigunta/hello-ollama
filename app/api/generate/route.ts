@@ -12,6 +12,39 @@ interface RequestBody {
   prompt: string;
 }
 
+// Helper function to extract YouTube video ID
+const extractYoutubeVideoId = (url: string): string => {
+  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const match = url.match(regex);
+  return match?.[1] || '';
+};
+
+// Helper function to check if video already exists in ChromaDB
+const videoExistsInChromaDB = async (
+  videoId: string, 
+  embeddings: OllamaEmbeddings
+): Promise<Chroma | null> => {
+  try {
+    // Try to connect to an existing collection with this video ID
+    const collection = `youtube_${videoId}`;
+    const vectorStore = await Chroma.fromExistingCollection(
+      embeddings,
+      { collectionName: collection }
+    );
+    
+    // Get collection info to verify it exists and has documents
+    const count = await vectorStore.collectionSize();
+    if (count > 0) {
+      console.log(`Found existing collection '${collection}' with ${count} documents`);
+      return vectorStore;
+    }
+    return null;
+  } catch (error) {
+    console.log("Collection doesn't exist or other error:", error);
+    return null;
+  }
+};
+
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   console.log("Incoming request:", { method: req.method });
 
@@ -35,48 +68,67 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
   }
 
   try {
-    // Load documents
-    console.log("Loading documents from YouTube link...");
-    const loader = YoutubeLoader.createFromUrl(youtubeLink, {
-      language: "en",
-      addVideoInfo: true,
-    });
-    const rawDocuments = await loader.load();
-    console.log("Documents loaded:", rawDocuments);
-
-    const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1500,
-      chunkOverlap: 200,
-    });
-    const documents = await splitter.splitDocuments(rawDocuments);
-    console.log("Documents split into chunks:", documents);
-
-    // Initialize models and DB
-    console.log("Initializing embeddings and vector store...");
-    const embeddings = new OllamaEmbeddings({ model: "nomic-embed-text" });
-    const model = new ChatOllama({ model: "phi4" });
-    // const vectorStore = new FaissStore(embeddings, {});
-    const vectorStore = await Chroma.fromDocuments(
-      documents,
-      embeddings,
-      { collectionName: "default" }
-    );
-    if (!vectorStore) {
-      console.error("Failed to initialize vector store.");
+    // Extract YouTube video ID
+    const videoId = extractYoutubeVideoId(youtubeLink);
+    if (!videoId) {
       return NextResponse.json(
-        { error: "Failed to initialize vector store." },
-        { status: 500 }
+        { error: "Invalid YouTube URL." },
+        { status: 400 }
       );
     }
-    console.log("Embeddings and vector store initialized.", vectorStore);
+    
+    // Initialize embeddings
+    console.log("Initializing embeddings...");
+    const embeddings = new OllamaEmbeddings({ model: "nomic-embed-text" });
+    const model = new ChatOllama({ model: "phi4" });
+    
+    // Check if video already exists in ChromaDB
+    let vectorStore = await videoExistsInChromaDB(videoId, embeddings);
+    
+    // If video doesn't exist in ChromaDB, process it
+    if (!vectorStore) {
+      console.log("Video not found in ChromaDB. Processing YouTube content...");
+      
+      // Load documents
+      console.log("Loading documents from YouTube link...");
+      const loader = YoutubeLoader.createFromUrl(youtubeLink, {
+        language: "en",
+        addVideoInfo: true,
+      });
+      const rawDocuments = await loader.load();
+      console.log("Documents loaded:", rawDocuments);
 
-    await vectorStore.addDocuments(documents);
-    console.log("Documents added to vector store.");
+      const splitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1500,
+        chunkOverlap: 200,
+      });
+      const documents = await splitter.splitDocuments(rawDocuments);
+      console.log("Documents split into chunks:", documents);
+
+      // Initialize vector store with video ID as collection name
+      console.log("Creating new vector store...");
+      vectorStore = await Chroma.fromDocuments(
+        documents,
+        embeddings,
+        { collectionName: `youtube_${videoId}` }
+      );
+      
+      if (!vectorStore) {
+        console.error("Failed to initialize vector store.");
+        return NextResponse.json(
+          { error: "Failed to initialize vector store." },
+          { status: 500 }
+        );
+      }
+      console.log("Embeddings and vector store initialized.");
+    } else {
+      console.log("Using existing vector store for this YouTube video.");
+    }
 
     // Run the chain
     console.log("Creating question-answering chain...");
     const questionAnsweringPrompt = ChatPromptTemplate.fromMessages([
-      ["system", "Answer the user's question using only the sources below:\n\n{context}"],
+      ["system", "Answer the user's question using only the sources below:\n\n{context}, Provide the recipe in markdown format"],
       ["human", "{input}"],
     ]);
     const retriever = vectorStore.asRetriever();

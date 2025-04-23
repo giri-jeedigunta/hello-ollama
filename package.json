@@ -21,6 +21,7 @@
     "@langchain/ollama": "^0.2.0",
     "@langchain/openai": "^0.5.4",
     "@qdrant/js-client-rest": "^1.13.0",
+    "@tailwindcss/typography": "^0.5.16",
     "chromadb": "^2.2.0",
     "dotenv": "^16.4.7",
     "faiss-node": "^0.5.1",
@@ -29,6 +30,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "youtube-transcript": "^1.2.1",
     "youtubei.js": "^13.3.0"
