@@ -2,17 +2,18 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const Header: React.FC = () => {
     return (
-        <header className="fixed top-0 left-0 right-0 bg-white shadow-lg py-4 z-50 border-b border-gray-200 backdrop-blur-sm">
-            <div className="w-full px-8 mx-auto">
+        <header className="fixed top-0 left-0 right-0 bg-[#f8f5e6] py-4 z-50 border-b border-[#dcd7c9] px-8">
+            <div className="w-full mx-auto">
                 <div className="flex justify-between items-center">
-                    <div className="flex flex-col">
-                        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 drop-shadow-[0_0_0.3rem_#00000020] transition-all duration-300 hover:drop-shadow-[0_0_0.5rem_#00000030]">
-                            Chef<span className="text-emerald-600">GPT</span>
+                    <div className="flex flex-col ml-12">
+                        <h1 className="text-3xl md:text-4xl font-semibold text-[#9c4a1a] font-caveat">
+                            Chef<span className="text-[#5a3e2b]">GPT</span>
                         </h1>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-[#5a3e2b] text-sm font-medium">
                             Your AI Sous-Chef for Perfect Recipes
                         </p>
                     </div>
@@ -21,8 +22,8 @@ const Header: React.FC = () => {
                             <li>
                                 <Link
                                     href="/"
-                                    className="text-gray-800 relative font-medium transition-all duration-300 hover:text-emerald-600 
-                                      after:absolute after:left-0 after:bottom-[-5px] after:h-[2px] after:w-0 after:bg-emerald-600 
+                                    className="text-[#5a3e2b] relative font-medium transition-all duration-300 hover:text-[#9c4a1a]
+                                      after:absolute after:left-0 after:bottom-[-5px] after:h-[2px] after:w-0 after:bg-[#9c4a1a] 
                                       after:transition-all after:duration-300 hover:after:w-full"
                                 >
                                     Home
@@ -31,11 +32,11 @@ const Header: React.FC = () => {
                             <li>
                                 <Link
                                     href="/chroma"
-                                    className="text-gray-800 relative font-medium transition-all duration-300 hover:text-emerald-600 
-                                      after:absolute after:left-0 after:bottom-[-5px] after:h-[2px] after:w-0 after:bg-emerald-600 
+                                    className="text-[#5a3e2b] relative font-medium transition-all duration-300 hover:text-[#9c4a1a]
+                                      after:absolute after:left-0 after:bottom-[-5px] after:h-[2px] after:w-0 after:bg-[#9c4a1a] 
                                       after:transition-all after:duration-300 hover:after:w-full"
                                 >
-                                    Chroma DB
+                                    Recipe Book
                                 </Link>
                             </li>
                         </ul>

@@ -3,7 +3,6 @@ import { YoutubeLoader } from "@langchain/community/document_loaders/web/youtube
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { ChatOllama, OllamaEmbeddings } from "@langchain/ollama";
-import { FaissStore } from "@langchain/community/vectorstores/faiss";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 
@@ -32,11 +31,13 @@ const videoExistsInChromaDB = async (
       { collectionName: collection }
     );
     
-    // Get collection info to verify it exists and has documents
-    const count = await vectorStore.collectionSize();
-    if (count > 0) {
-      console.log(`Found existing collection '${collection}' with ${count} documents`);
-      return vectorStore;
+    // Check if the collection exists by getting a count of items
+    if (vectorStore.collection) {
+      const count = await vectorStore.collection.count();
+      if (count > 0) {
+        console.log(`Found existing collection '${collection}' with ${count} documents`);
+        return vectorStore;
+      }
     }
     return null;
   } catch (error) {
@@ -89,38 +90,54 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     if (!vectorStore) {
       console.log("Video not found in ChromaDB. Processing YouTube content...");
       
-      // Load documents
-      console.log("Loading documents from YouTube link...");
-      const loader = YoutubeLoader.createFromUrl(youtubeLink, {
-        language: "en",
-        addVideoInfo: true,
-      });
-      const rawDocuments = await loader.load();
-      console.log("Documents loaded:", rawDocuments);
+      try {
+        // Load documents
+        console.log("Loading documents from YouTube link...");
+        const loader = YoutubeLoader.createFromUrl(youtubeLink, {
+          language: "en",
+          addVideoInfo: true,
+        });
+        const rawDocuments = await loader.load();
+        console.log("Documents loaded:", rawDocuments);
 
-      const splitter = new RecursiveCharacterTextSplitter({
-        chunkSize: 1500,
-        chunkOverlap: 200,
-      });
-      const documents = await splitter.splitDocuments(rawDocuments);
-      console.log("Documents split into chunks:", documents);
+        if (!rawDocuments || rawDocuments.length === 0) {
+          console.error("Failed to load documents from YouTube");
+          return NextResponse.json(
+            { error: "Failed to extract content from YouTube video. Please try a different video." },
+            { status: 400 }
+          );
+        }
 
-      // Initialize vector store with video ID as collection name
-      console.log("Creating new vector store...");
-      vectorStore = await Chroma.fromDocuments(
-        documents,
-        embeddings,
-        { collectionName: `youtube_${videoId}` }
-      );
-      
-      if (!vectorStore) {
-        console.error("Failed to initialize vector store.");
+        const splitter = new RecursiveCharacterTextSplitter({
+          chunkSize: 1500,
+          chunkOverlap: 200,
+        });
+        const documents = await splitter.splitDocuments(rawDocuments);
+        console.log("Documents split into chunks:", documents);
+
+        // Initialize vector store with video ID as collection name
+        console.log("Creating new vector store...");
+        vectorStore = await Chroma.fromDocuments(
+          documents,
+          embeddings,
+          { collectionName: `youtube_${videoId}` }
+        );
+        
+        if (!vectorStore) {
+          console.error("Failed to initialize vector store.");
+          return NextResponse.json(
+            { error: "Failed to initialize vector store." },
+            { status: 500 }
+          );
+        }
+        console.log("Embeddings and vector store initialized.");
+      } catch (youtubeError) {
+        console.error("Error processing YouTube content:", youtubeError);
         return NextResponse.json(
-          { error: "Failed to initialize vector store." },
-          { status: 500 }
+          { error: "Failed to process YouTube video. This may be due to video restrictions or changes in YouTube's interface. Please try a different video." },
+          { status: 400 }
         );
       }
-      console.log("Embeddings and vector store initialized.");
     } else {
       console.log("Using existing vector store for this YouTube video.");
     }

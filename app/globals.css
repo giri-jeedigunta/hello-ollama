@@ -4,33 +4,88 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Replace @plugin with proper @tailwind configuration */
-/* The @plugin directive isn't valid CSS syntax */
-
 :root {
-  --background: #0f0f1a;
-  --foreground: #ffffff;
+  --background: #f8f5e6;
+  --foreground: #3a3a3a;
+  --accent: #9c4a1a;
+  --accent-light: #c17d56;
+  --paper-lines: #dcd7c9;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+  /* Notebook paper background effect */
+  background-image:
+    linear-gradient(var(--paper-lines) 1px, transparent 1px);
+  background-size: 100% 2rem;
+  position: relative;
 }
 
-/* Add some futuristic styling for overall look */
+/* Create a subtle paper texture */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.05;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Red margin on the left like a notebook */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1.5rem;
+  height: 100%;
+  background-color: var(--accent-light);
+  opacity: 0.6;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Chef's notebook styling for headings */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-orbitron), sans-serif;
-  letter-spacing: 1px;
+  font-family: var(--font-geist-sans), serif;
+  color: var(--accent);
+  letter-spacing: 0.5px;
 }
 
+/* Form elements styling */
 input,
 textarea,
 button {
-  font-family: var(--font-orbitron), sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+  border-color: var(--paper-lines);
+}
+
+/* Custom styling for recipe content */
+.markdown-content {
+  font-family: var(--font-geist-sans), sans-serif;
+  line-height: 1.8;
+}
+
+/* Customize code blocks to look like recipe notes */
+pre,
+code {
+  background-color: #f1ede1 !important;
+  border: 1px dashed #c8bfa7;
+  font-family: var(--font-geist-mono), monospace;
+}
+
+/* Handwritten effect for selected elements */
+.handwritten {
+  font-family: 'Caveat', cursive, var(--font-geist-sans);
 }
