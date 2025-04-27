@@ -94,6 +94,7 @@ const ChromaPage: React.FC = () => {
 
             if (response.ok) {
                 setResults(data);
+                setLimit(data.documentCount); // Reset limit after query
             } else {
                 setError(data.error || "Failed to query collection");
             }
@@ -110,8 +111,8 @@ const ChromaPage: React.FC = () => {
             <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-12 gap-6">
                 {/* Left column - Query Form */}
                 <div className="md:col-span-4 bg-[#f1ede1] border-[#dcd7c9] border p-6 rounded-lg shadow-md ml-4 md:ml-8">
-                    <h2 className="text-xl font-caveat font-bold mb-6 text-[#9c4a1a] border-b pb-2 border-[#dcd7c9]">
-                        Recipe Archive
+                    <h2 className="text-xl font-bold mb-6 text-[#9c4a1a] border-b pb-2 border-[#dcd7c9]">
+                        Chroma DB
                     </h2>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
@@ -202,49 +203,41 @@ const ChromaPage: React.FC = () => {
 
                 {/* Right column - Results */}
                 <div className="md:col-span-8 border-[#dcd7c9] border p-6 rounded-lg shadow-md bg-[#f1ede1]">
-                    <h2 className="text-xl font-caveat font-bold mb-6 text-[#9c4a1a] border-b pb-2 border-[#dcd7c9]">
-                        Recipe Collection
+                    <h2 className="text-xl font-bold mb-6 text-[#9c4a1a] border-b pb-2 border-[#dcd7c9]">
+                        Collection / Docs
                     </h2>
 
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-12">
                             <div className="w-16 h-16 border-t-4 border-[#9c4a1a] border-solid rounded-full animate-spin"></div>
-                            <p className="mt-4 text-[#5a3e2b] font-caveat text-xl">Flipping through recipe pages...</p>
+                            <p className="mt-4 text-[#5a3e2b] text-xl">Flipping through recipe pages...</p>
                         </div>
                     ) : results ? (
                         <div className="space-y-4">
                             <div className="bg-[#f8f5e6] rounded-lg p-4 shadow-sm border border-[#dcd7c9]">
-                                <h3 className="text-lg font-caveat font-semibold text-[#9c4a1a]">Collection Information</h3>
+                                <h3 className="text-lg font-semibold text-[#9c4a1a]">Collection Information</h3>
                                 <p className="mt-2 text-[#5a3e2b]">
                                     <span className="font-medium">Collection:</span> {results.collectionName}
                                 </p>
                                 <p className="text-[#5a3e2b]">
-                                    <span className="font-medium">Recipe Count:</span> {results.documentCount}
+                                    <span className="font-medium">Document count:</span> {results.documentCount}
                                 </p>
                             </div>
 
                             {(results.queryResults || results.sampleDocuments) && (
                                 <div className="space-y-4 mt-4">
-                                    <h3 className="text-lg font-caveat font-semibold text-[#9c4a1a]">
+                                    <h3 className="text-lg font-semibold text-[#9c4a1a]">
                                         {query.trim() ? "Found Recipes" : "Recipe Ideas"}
                                     </h3>
 
                                     {(results.queryResults || results.sampleDocuments || []).map((result, index) => (
                                         <div key={index} className="bg-[#f8f5e6] rounded-lg p-4 shadow-sm border border-[#dcd7c9]">
                                             <div className="mb-2 pb-2 border-b border-[#dcd7c9]">
-                                                <h4 className="font-caveat font-bold text-lg text-[#9c4a1a]">Recipe {index + 1}</h4>
+                                                <h4 className="font-bold text-lg text-[#9c4a1a]">Chunk {index + 1}</h4>
                                             </div>
                                             <div className="prose prose-stone max-w-none">
                                                 <ReactMarkdown key={`content-${index}`}>{result.content || 'No recipe details available'}</ReactMarkdown>
                                             </div>
-                                            {Object.keys(result.metadata).length > 0 && (
-                                                <div className="mt-3 pt-3 border-t border-[#dcd7c9]">
-                                                    <h5 className="text-sm font-medium text-[#5a3e2b] mb-1">Recipe Metadata</h5>
-                                                    <pre className="text-xs bg-[#f1ede1] p-2 rounded overflow-x-auto border border-[#dcd7c9]">
-                                                        {JSON.stringify(result.metadata, null, 2)}
-                                                    </pre>
-                                                </div>
-                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -255,7 +248,7 @@ const ChromaPage: React.FC = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-[#c17d56]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <p className="text-center font-caveat text-xl">Select a recipe collection to start browsing</p>
+                            <p className="text-center text-xl">Select a recipe collection to start browsing</p>
                         </div>
                     )}
                 </div>

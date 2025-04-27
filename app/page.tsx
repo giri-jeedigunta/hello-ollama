@@ -1,16 +1,36 @@
 'use client'
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from 'rehype-raw';
+import { RecipeExtractionPrompt } from "./constants";
+
+// Example of using Playwrite AU SA font
+const PlaywriteFontExample = () => {
+  return (
+    <div className="my-8">
+      <h2 style={{ fontFamily: 'var(--font-playwrite)', fontSize: '2rem' }}>
+        This heading is using Playwrite AU SA font
+      </h2>
+      <p style={{ fontFamily: 'var(--font-playwrite)' }}>
+        This paragraph is also using the Playwrite AU SA font from Google Fonts.
+      </p>
+    </div>
+  );
+};
 
 const Home: React.FC = () => {
-  const [youtubeLink, setYoutubeLink] = useState<string>("https://www.youtube.com/watch?v=c5LqYrs3ads");
-  const [prompt, setPrompt] = useState<string>("Get the recipe from the video with all the steps");
+  const [youtubeLink, setYoutubeLink] = useState<string>("https://www.youtube.com/watch?v=m5wbKFcLrJQ");
+  const [prompt, setPrompt] = useState<string>(RecipeExtractionPrompt.trim());
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Dummy response for testing styles
+    setAiResponse(`# Recipe Title\n\n## Ingredients\n\n- 1 cup of flour\n- 2 eggs\n- 1/2 cup of sugar\n\n## Instructions\n\n1. Preheat the oven to 350°F (175°C).\n2. Mix all the ingredients in a bowl.\n3. Pour the mixture into a baking dish.\n4. Bake for 25 minutes.\n\n## Notes\n\n- You can add vanilla extract for extra flavor.\n\n| Nutrient | Amount |\n|----------|--------|\n| Calories | 200    |\n| Protein  | 5g     |\n\n---\n\n**Enjoy your meal!**`);
+  }, []);
 
   const handleGenerateWithAI = async (): Promise<void> => {
     if (!youtubeLink.trim() || !prompt.trim()) {
@@ -69,7 +89,7 @@ const Home: React.FC = () => {
       <div className="w-full mx-auto grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Left column - Form - 4 columns */}
         <div className="md:col-span-4 bg-[#f1ede1] border-[#dcd7c9] border p-6 rounded-lg shadow-md ml-4 md:ml-8">
-          <h2 className="text-xl font-caveat font-bold mb-6 text-[#9c4a1a] border-b pb-2 border-[#dcd7c9]">
+          <h2 className="text-xl font-bold mb-6 text-[#9c4a1a] border-b pb-2 border-[#dcd7c9]">
             Recipe Lab
           </h2>
 
@@ -134,7 +154,7 @@ const Home: React.FC = () => {
         {/* Right column - Recipe Output - 8 columns */}
         <div className="md:col-span-8 border-[#dcd7c9] border p-6 rounded-lg shadow-md bg-[#f1ede1]">
           <div className="flex justify-between items-center mb-4 border-b pb-2 border-[#dcd7c9]">
-            <h2 className="text-xl font-caveat font-bold text-[#9c4a1a]">
+            <h2 className="text-xl font-bold text-[#9c4a1a]">
               Recipe Notebook
             </h2>
             {aiResponse && (
@@ -154,25 +174,29 @@ const Home: React.FC = () => {
             {loading ? (
               <div className="flex flex-col items-center justify-center h-64">
                 <div className="w-16 h-16 border-t-4 border-[#9c4a1a] border-solid rounded-full animate-spin"></div>
-                <p className="mt-4 text-[#9c4a1a] font-caveat text-xl">Simmering your recipe...</p>
+                <p className="mt-4 text-[#9c4a1a] text-xl">Simmering your recipe...</p>
               </div>
             ) : aiResponse ? (
-              <div className="markdown-content prose prose-stone max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                  {aiResponse}
-                </ReactMarkdown>
+              <div className="prose prose-lg dark:prose-invert">
+                <article>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    {aiResponse}
+                  </ReactMarkdown>
+                </article>
               </div>
+
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-[#5a3e2b]">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-[#c17d56]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <p className="text-center font-caveat text-xl">Your culinary masterpiece will appear here</p>
+                <p className="text-center text-xl">Your culinary masterpiece will appear here</p>
               </div>
             )}
           </div>
         </div>
       </div>
+      <PlaywriteFontExample />
     </main>
   );
 };

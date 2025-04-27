@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Caveat } from "next/font/google"; // Handwritten font for chef's notebook
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"; // Added Playfair_Display font
 import "./globals.css";
 import Header from "./components/Header";
 
@@ -14,11 +13,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Add Caveat handwritten font for authentic recipe notes
-const caveat = Caveat({
-  variable: "--font-caveat",
+// Add Playfair Display font
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -33,8 +31,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Import Playwrite AU SA font from Google Fonts */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playwrite+AU+SA:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable}`}
         suppressHydrationWarning
       >
         <Header />

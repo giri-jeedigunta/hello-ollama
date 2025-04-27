@@ -10,7 +10,7 @@ const Header: React.FC = () => {
             <div className="w-full mx-auto">
                 <div className="flex justify-between items-center">
                     <div className="flex flex-col ml-12">
-                        <h1 className="text-3xl md:text-4xl font-semibold text-[#9c4a1a] font-caveat">
+                        <h1 className="text-3xl md:text-4xl font-semibold text-[#9c4a1a]">
                             Chef<span className="text-[#5a3e2b]">GPT</span>
                         </h1>
                         <p className="text-[#5a3e2b] text-sm font-medium">
@@ -36,7 +36,7 @@ const Header: React.FC = () => {
                                       after:absolute after:left-0 after:bottom-[-5px] after:h-[2px] after:w-0 after:bg-[#9c4a1a] 
                                       after:transition-all after:duration-300 hover:after:w-full"
                                 >
-                                    Recipe Book
+                                    Chroma DB
                                 </Link>
                             </li>
                         </ul>
