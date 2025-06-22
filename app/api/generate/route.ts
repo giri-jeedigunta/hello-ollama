@@ -6,12 +6,21 @@ import { ChatOllama, OllamaEmbeddings } from "@langchain/ollama";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { Chroma } from '@langchain/community/vectorstores/chroma';
 
+/**
+ * Interface defining the expected request body structure
+ */
 interface RequestBody {
   youtubeLink: string;
   prompt: string;
 }
 
 // Helper function to extract YouTube video ID
+/**
+ * Extracts the YouTube video ID from various YouTube URL formats
+ * 
+ * @param {string} url - The YouTube URL to extract the video ID from
+ * @returns {string} The extracted video ID or empty string if not found
+ */
 const extractYoutubeVideoId = (url: string): string => {
   const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
   const match = url.match(regex);
@@ -19,6 +28,13 @@ const extractYoutubeVideoId = (url: string): string => {
 };
 
 // Helper function to check if video already exists in ChromaDB
+/**
+ * Checks if a YouTube video already exists in ChromaDB
+ *
+ * @param {string} videoId - The YouTube video ID to check
+ * @param {OllamaEmbeddings} embeddings - The embeddings instance to use for DB connection
+ * @returns {Promise<Chroma | null>} The vector store if found, null otherwise
+ */
 const videoExistsInChromaDB = async (
   videoId: string, 
   embeddings: OllamaEmbeddings
@@ -46,6 +62,17 @@ const videoExistsInChromaDB = async (
   }
 };
 
+/**
+ * POST API route handler for generating responses based on YouTube content
+ * 
+ * Processes a request containing a YouTube link and prompt, then:
+ * 1. Extracts YouTube video content
+ * 2. Stores content in ChromaDB if not already present
+ * 3. Uses LLM to generate a response based on the content and prompt
+ * 
+ * @param {NextRequest} req - The incoming request object
+ * @returns {Promise<NextResponse>} JSON response with generated content or error
+ */
 export const POST = async (req: NextRequest): Promise<NextResponse> => {
   console.log("Incoming request:", { method: req.method });
 
@@ -99,6 +126,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
         });
         const rawDocuments = await loader.load();
         console.log("Documents loaded:", rawDocuments);
+        console.log("Documents loaded:");
 
         if (!rawDocuments || rawDocuments.length === 0) {
           console.error("Failed to load documents from YouTube");
@@ -122,7 +150,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
           embeddings,
           { collectionName: `youtube_${videoId}` }
         );
-        
+
         if (!vectorStore) {
           console.error("Failed to initialize vector store.");
           return NextResponse.json(
@@ -145,7 +173,7 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     // Run the chain
     console.log("Creating question-answering chain...");
     const questionAnsweringPrompt = ChatPromptTemplate.fromMessages([
-      ["system", "Answer the user's question using only the sources below:\n\n{context}, Provide the recipe in markdown format"],
+      ["system", "Answer the user's question using only the sources below:\n\n{context}, Provide the recipe in Markdown format"],
       ["human", "{input}"],
     ]);
     const retriever = vectorStore.asRetriever();
@@ -156,7 +184,8 @@ export const POST = async (req: NextRequest): Promise<NextResponse> => {
     console.log("Chain created successfully.");
 
     const context = await retriever.invoke(prompt);
-    console.log("Context retrieved:", context);
+    // console.log("Context retrieved:", context);
+    console.log("Context retrieved:");
 
     const stream = await ragChain.stream({ input: prompt, context });
     console.log("Streaming response...");

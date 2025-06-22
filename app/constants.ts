@@ -5,12 +5,12 @@ Extract the complete recipe from a YouTube cooking video with the following deta
 - Author Credit: Mention the YouTube channel or creator’s name.
 - Recipe Description: Write a short, engaging description of the dish — include flavors, origins (if mentioned), and a bit of personality.
 
-- Ingredients Table:  
+- Ingredients Table:
   Create a structured table with these columns:
   - Ingredient Name
   - Quantity (as shown in the video)
-  - Quantity (converted to EU standard measurements — metric)
   - Ingredient Name translated into Swedish
+  - Quantity (converted to EU standard measurements — metric)
 
 - Preparation and Cooking Details:
   - List all marination, soaking, or pre-cooking preparation steps clearly.
@@ -36,5 +36,6 @@ Extract the complete recipe from a YouTube cooking video with the following deta
   - Special tools or utensils needed
   - Serving suggestions or storage tips
 
-Ensure the final result feels like a friendly, complete, cookbook-quality recipe that's detailed enough for beginners but polished enough for experienced cooks. Keep the tone warm, clear, and slightly playful when relaying jokes or light-hearted moments from the chef.
+Ensure the final result feels like a friendly, complete, cookbook-quality recipe that's detailed enough for beginners but polished enough for experienced cooks. Keep the tone warm, clear, and slightly playful when relaying jokes or light-hearted moments from the chef. 
+Provide the recipe in HTML format that can be easily rendered in a React Component with dangerouslySetInnerHTML only provide the actual html content. I do not require the html and body scaffolding, just the content inside the body tag. I already have the html and body tags in my component.
 `;
