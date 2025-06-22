@@ -1,4 +1,4 @@
-# Hello Ollama
+# Hello Ollama / Chef GPT
 
 This project is inspired by and built as a learning exercise from the following resources:
 
